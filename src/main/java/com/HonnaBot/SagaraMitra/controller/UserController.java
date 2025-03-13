@@ -5,27 +5,49 @@ import com.HonnaBot.SagaraMitra.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
+
     @Autowired
     private UserService userService;
 
-    @GetMapping
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
+    @PostMapping("/register")
+    public String registerUser(@RequestBody User user) {
+
+        return userService.registerUser(user);
     }
 
-    @GetMapping("/{phone}")
-    public User getUserByPhone(@PathVariable String phone) {
-        return userService.getUserByPhone(phone);
+    @GetMapping("/check-user")
+    public Map<String, Boolean> checkUserExists(@RequestParam String userPhone) {
+        boolean exists = userService.checkUserExists(userPhone);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("exists", exists);
+        return response;
+    }
+    @PostMapping("/login")
+    public Map<String, String> loginUser(@RequestBody Map<String, String> loginRequest) {
+        String userPhone = loginRequest.get("userPhone");
+        String userPassword = loginRequest.get("userPassword");
+
+        Map<String, String> response = new HashMap<>();
+        String status = userService.validateUserLogin(userPhone, userPassword);
+        response.put("status", status);
+        return response;
+    }
+    @PostMapping("/logout")
+    public String logoutUser() {
+        userService.logoutUser();
+        return "Logged out successfully!";
     }
 
-    @PostMapping
-    public User saveUser(@RequestBody User user) {
-        return userService.saveUser(user);
+    @GetMapping("/current-user")
+    public User getCurrentUser() {
+        return userService.getCurrentUser();
     }
+
 }

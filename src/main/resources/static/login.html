@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <script>
+        function loginUser(event) {
+            event.preventDefault(); // Prevent form submission
+
+            let userPhone = document.getElementById("userPhone").value;
+            let userPassword = document.getElementById("userPassword").value;
+
+            fetch("/users/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userPhone, userPassword })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Login Response:", data); // Debugging log
+
+                if (data.status === "success") {
+                    sessionStorage.setItem("loggedInUser", data.userName); // Store user session
+                    alert("Login successful!");
+
+                    // Redirect back to the previous page (home page)
+                    let lastPage = sessionStorage.getItem("lastPage") || "/home.html";
+                    window.location.href = lastPage;
+                } else if (data.status === "wrong_password") {
+                    alert("Incorrect password. Please try again!");
+                } else {
+                    alert("User not found. Redirecting to registration...");
+                    window.location.href = "/register.html"; // Redirect to register page
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+</head>
+<body>
+<h2>Login</h2>
+<form id="loginForm" onsubmit="loginUser(event)">
+    <label for="userPhone">Phone Number:</label>
+    <input type="text" id="userPhone" name="userPhone" required>
+    <br>
+    <label for="userPassword">Password:</label>
+    <input type="password" id="userPassword" name="userPassword" required>
+    <br>
+    <button type="submit">Login</button>
+</form>
+</body>
+</html>

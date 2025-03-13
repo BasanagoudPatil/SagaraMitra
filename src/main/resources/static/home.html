@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .navbar { display: flex; justify-content: space-between; padding: 10px; background: #007BFF; color: white; }
+        .nav-buttons { margin-right: 20px; }
+        button { margin: 5px; padding: 8px 12px; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <h2>SagaraMitra</h2>
+    <div class="nav-buttons" id="nav-buttons">
+        <button onclick="redirectToLogin()">Login</button>
+        <button onclick="redirectToRegister()">Register</button>
+    </div>
+</div>
+
+<h1>Welcome to SagaraMitra</h1>
+<!--<p id="user-info"></p>-->
+
+<script>
+    function updateNavbar() {
+        fetch("/users/current-user")
+            .then(response => response.json())
+            .then(user => {
+                console.log("User data from API:", user); // Debugging log
+
+                if (user.userName) {
+                    sessionStorage.setItem("loggedInUser", user.userName); // ✅ Store session
+                    document.getElementById("user-info").innerText = `Hello, ${user.userName}`;
+
+                    // Update navbar: Show Logout button
+                    document.getElementById("nav-buttons").innerHTML = `<button onclick="logout()">Logout</button>`;
+                } else {
+                    sessionStorage.removeItem("loggedInUser");
+
+                    // Show Login & Register buttons if no user is logged in
+                    document.getElementById("nav-buttons").innerHTML = `
+                        <button onclick="redirectToLogin()">Login</button>
+                        <button onclick="redirectToRegister()">Register</button>`;
+                }
+            })
+            .catch(error => console.error("Error fetching user:", error));
+    }
+
+    function redirectToLogin() {
+        sessionStorage.setItem("lastPage", window.location.href); // Store last visited page
+        window.location.href = "login.html";
+    }
+
+    function redirectToRegister() {
+        sessionStorage.setItem("lastPage", window.location.href); // Store last visited page
+        window.location.href = "register.html";
+    }
+
+    function logout() {
+        fetch("/users/logout", { method: "POST" })
+            .then(() => {
+                sessionStorage.removeItem("loggedInUser");
+                sessionStorage.removeItem("lastPage");
+                window.location.href = "home.html"; // Refresh page to update navbar
+            })
+            .catch(error => console.error("Logout error:", error));
+    }
+
+    window.onload = function () {
+        let userName = sessionStorage.getItem("loggedInUser");
+        console.log("Session Storage User:", userName); // Debugging log
+
+        if (userName) {
+          //  document.getElementById("user-info").innerText = `Hello, ${userName}`;
+            document.getElementById("nav-buttons").innerHTML = `<button onclick="logout()">Logout</button>`;
+        } else {
+            updateNavbar(); // Check login status from backend
+        }
+    };
+</script>
+
+</body>
+</html>
