@@ -1,0 +1,62 @@
+• Registration
+
+DELIMITER //
+
+CREATE PROCEDURE RegisterUser(
+    IN p_user_name VARCHAR(100),
+    IN p_user_age INT,
+    IN p_user_phone VARCHAR(15),
+    IN p_user_password VARCHAR(255)
+)
+BEGIN
+    DECLARE user_count INT;
+
+    -- Check if the phone number already exists
+    SELECT COUNT(*) INTO user_count FROM Users WHERE user_phone = p_user_phone;
+
+    IF user_count > 0 THEN
+        SELECT 'User already exists!' AS MESSAGE;
+    ELSE
+        -- Insert new user with hashed password
+        INSERT INTO Users (user_name, user_age, user_phone, user_password) 
+        VALUES (p_user_name, p_user_age, p_user_phone, p_user_password);
+        SELECT 'Registration successful' AS MESSAGE;
+
+    END IF;
+END //
+
+DELIMITER ;
+
+CALL RegisterUser('Basanagoud', 23, '7204794861', 'Basu123');
+
+• Login
+
+DELIMITER //
+
+CREATE PROCEDURE UserLogin(
+    IN p_user_phone VARCHAR(15),
+    IN p_user_password VARCHAR(255)
+)
+BEGIN
+    DECLARE user_count INT;
+
+    -- Check if the user exists with the correct password
+    SELECT COUNT(*) INTO user_count 
+    FROM Users 
+    WHERE user_phone = p_user_phone 
+    AND user_password = p_user_password;
+
+    IF user_count > 0 THEN
+        SELECT 'Login successful' AS Message;
+    ELSE
+        SELECT 'Invalid phone number or password' AS Message;
+    END IF;
+END //
+
+DELIMITER ;
+
+CALL UserLogin('9876543210', 'securepassword123');
+
+
+
+
