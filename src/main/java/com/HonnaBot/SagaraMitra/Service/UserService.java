@@ -36,6 +36,8 @@ public class UserService {
         if (!user.getUserPassword().equals(userPassword)) {
             return "wrong_password";
         }
+        session.setAttribute("user", user);
+
         return "success";
     }
     public void logoutUser() {

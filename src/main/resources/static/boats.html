@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Available Boats</title>
+  <style>
+    .section-title {
+        margin-top: 20px;
+        font-size: 20px;
+    }
+    .boat-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+    .boat-card {
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        width: 220px;
+        padding: 10px;
+        text-align: center;
+        box-shadow: 2px 2px 6px lightgray;
+    }
+    .boat-card img {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Boats Available at <span id="locationTitle"></span></h2>
+
+<div id="boatListContainer"></div>
+
+<script>
+  const selectedLocation = localStorage.getItem("selectedLocation");
+document.getElementById("locationTitle").innerText = selectedLocation;
+
+fetch(`http://localhost:8081/boats/by-location?location=${encodeURIComponent(selectedLocation)}`)
+    .then(res => res.json())
+    .then(data => {
+        console.log("Fetched boat data:", data); // ✅ Debug line
+
+        const container = document.getElementById("boatListContainer");
+
+        if (data.publicBoats.length === 0 && data.privateBoats.length === 0) {
+            container.innerHTML = "<p>No boats available at this location.</p>";
+            return;
+        }
+
+        if (data.publicBoats.length > 0) {
+            container.innerHTML += `<h3 class="section-title">Public Boats</h3><div class="boat-container" id="publicBoats"></div>`;
+            const pbContainer = document.getElementById("publicBoats");
+
+            data.publicBoats.forEach(boat => {
+                const card = document.createElement("div");
+                card.className = "boat-card";
+                card.innerHTML = `
+                    <img src="images/${boat.boatName.toLowerCase().replace(/\s/g, '')}.jpg"
+                         onerror="this.onerror=null;this.src='images/placeholder.jpg';"
+                         alt="${boat.boatName}">
+                    <h4>${boat.boatName}</h4>
+                    <p>Capacity: ${boat.capacity}</p>
+                `;
+                pbContainer.appendChild(card);
+            });
+        }
+
+        if (data.privateBoats.length > 0) {
+            container.innerHTML += `<h3 class="section-title">Private Boats</h3><div class="boat-container" id="privateBoats"></div>`;
+            const prContainer = document.getElementById("privateBoats");
+
+            data.privateBoats.forEach(boat => {
+                const card = document.createElement("div");
+                card.className = "boat-card";
+                card.innerHTML = `
+                    <img src="images/${boat.boatName.toLowerCase().replace(/\s/g, '')}.jpg"
+                         onerror="this.onerror=null;this.src='images/placeholder.jpg';"
+                         alt="${boat.boatName}">
+                    <h4>${boat.boatName}</h4>
+                `;
+                prContainer.appendChild(card);
+            });
+        }
+    })
+    .catch(error => {
+        console.error("Error fetching boats:", error);
+        document.getElementById("boatListContainer").innerHTML = "<p>Failed to load boats.</p>";
+    });
+
+</script>
+
+
+</body>
+</html>

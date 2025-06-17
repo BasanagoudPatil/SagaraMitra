@@ -8,6 +8,9 @@
 
 <h2>Welcome to SagaraMitra!</h2>
 
+<!-- Go to profile button -->
+<button onclick="window.location.href='profile.html'">Go to Profile</button>
+
 <form id="logoutForm">
     <button type="submit">Logout</button>
 </form>
@@ -22,7 +25,6 @@
         .then(response => response.text())
         .then(data => {
             if (data === "success" || data.includes("Logged out")) {
-                // Redirect to index.html
                 window.location.href = "/index.html";
                 alert("Logout successful.");
             } else {
@@ -35,6 +37,7 @@
         });
     });
 </script>
+<button onclick="window.location.href='locations.html'">Show Available Locations</button>
 
 </body>
 </html>

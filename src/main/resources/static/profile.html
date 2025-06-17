@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Profile - SagaraMitra</title>
+</head>
+<body>
+
+<h2>User Profile</h2>
+<div id="profileInfo">Loading profile...</div>
+
+<script>
+    fetch('/users/current-user')
+        .then(response => {
+            if (!response.ok) throw new Error("User not logged in");
+            return response.json();
+        })
+        .then(user => {
+            document.getElementById('profileInfo').innerHTML = `
+                <p><strong>Name:</strong> ${user.userName}</p>
+                <p><strong>Age:</strong> ${user.userAge}</p>
+                <p><strong>Phone:</strong> ${user.userPhone}</p>
+            `;
+        })
+        .catch(error => {
+            console.error("Fetch error:", error);
+            alert("You are not logged in. Redirecting to login page...");
+            window.location.href = "/index.html";
+        });
+</script>
+
+</body>
+</html>
