@@ -16,6 +16,9 @@
             return response.json();
         })
         .then(user => {
+            // ✅ Store userId for booking use
+            localStorage.setItem("userId", user.userId);
+
             document.getElementById('profileInfo').innerHTML = `
                 <p><strong>Name:</strong> ${user.userName}</p>
                 <p><strong>Age:</strong> ${user.userAge}</p>

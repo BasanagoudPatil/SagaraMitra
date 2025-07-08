@@ -5,31 +5,27 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "public_boat_booking")
+@Table(name = "private_boat_booking")
 @Data
-public class PublicBoatBooking {
+public class PrivateBoatBooking {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int bookingId;
 
-    /* ---- relations ---- */
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "boat_id", nullable = false)
-    private PublicBoat boat;
+    private PrivateBoat boat;
 
     @ManyToOne
     @JoinColumn(name = "slot_id", nullable = false)
-    private PublicBoatSlot slot;
+    private PrivateBoatSlot slot;
 
-    /* ---- booking details ---- */
     private LocalDate bookingDate;
 
-    private int seatsBooked;
-
-    private String status;    // e.g. "confirmed", "cancelled"
+    private String status;    // "confirmed", "cancelled"
 }

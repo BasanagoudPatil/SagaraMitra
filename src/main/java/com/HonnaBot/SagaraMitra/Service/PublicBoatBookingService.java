@@ -1,66 +1,80 @@
 package com.HonnaBot.SagaraMitra.Service;
 
-import com.HonnaBot.SagaraMitra.Entity.PublicBoat;
-import com.HonnaBot.SagaraMitra.Entity.PublicBoatBooking;
-import com.HonnaBot.SagaraMitra.Entity.PublicBoatSlot;
-import com.HonnaBot.SagaraMitra.Entity.User;
-import com.HonnaBot.SagaraMitra.Repositories.PublicBoatBookingRepository;
-import com.HonnaBot.SagaraMitra.Repositories.PublicBoatRepository;
-import com.HonnaBot.SagaraMitra.Repositories.PublicBoatSlotRepository;
-import com.HonnaBot.SagaraMitra.Repositories.UserRepository;
-import jakarta.servlet.http.HttpSession;
+import com.HonnaBot.SagaraMitra.Entity.*;
+import com.HonnaBot.SagaraMitra.Repositories.*;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class PublicBoatBookingService {
-    @Autowired
-    private PublicBoatRepository publicBoatRepository;
-    private final PublicBoatBookingRepository bookingRepository;
-    private final PublicBoatSlotRepository slotRepository;
-    private final UserRepository userRepository;
 
-    public List<PublicBoatSlot> getAvailableSlots(int boatId, LocalDate bookingDate) {
-        return bookingRepository.findAvailableSlots(boatId, bookingDate);
+    private final PublicBoatRepository boatRepo;
+    private final PublicBoatSlotRepository slotRepo;
+    private final PublicBoatStatusRepository statusRepo;
+    private final PublicBoatBookingRepository bookingRepo;
+    private final UserRepository userRepo;
+
+    /* 🔍 helper – free slots on a date */
+    public List<PublicBoatSlot> getAvailableSlots(int boatId, LocalDate date) {
+        return slotRepo.findAll().stream()
+                .filter(slot -> statusRepo
+                        .findByBoat_BoatIdAndBookingDateAndSlot_SlotId(boatId, date, slot.getSlotId())
+                        .map(PublicBoatStatus::isAvailable)
+                        .orElse(false))
+                .toList();
     }
 
-    public String bookPublicBoat(Long userId, int boatId, int slotId, LocalDate bookingDate, int seatsBooked) {
-        if (!userRepository.existsById(userId)) {
-            return "User not found!";
-        }
+    /* 🎫 main booking */
+    @Transactional
+    public String book(long userId, int boatId, int slotId, LocalDate date, int seats) {
 
-        Optional<PublicBoat> boatOptional = publicBoatRepository.findById(boatId);
-        if (!boatOptional.isPresent()) {
-            return "Boat not found!";
-        }
-        Optional<PublicBoatSlot> slotOptional = slotRepository.findById(slotId);
-        if (!slotOptional.isPresent()) {
-            return "Slot not found!";
-        }
-        List<PublicBoatSlot> availableSlots = getAvailableSlots(boatId, bookingDate);
-        boolean slotAvailable = availableSlots.stream().anyMatch(slot -> slot.getSlotId() == slotId);
+        if (date.isBefore(LocalDate.now())) return "Cannot book for past date.";
+        if (seats <= 0) return "Invalid seat count.";
 
-        if (!slotAvailable) {
-            return "Slot not available!";
-        }
+        Optional<User> userOpt = userRepo.findById(userId);
+        Optional<PublicBoat> boatOpt = boatRepo.findById(boatId);
+        Optional<PublicBoatSlot> slotOpt = slotRepo.findById(slotId);
+
+        if (userOpt.isEmpty() || boatOpt.isEmpty() || slotOpt.isEmpty()) return "Invalid input data.";
+
+        PublicBoatStatus status = statusRepo
+                .findByBoat_BoatIdAndBookingDateAndSlot_SlotId(boatId, date, slotId)
+                .orElseGet(() -> {
+                    PublicBoatStatus newStatus = new PublicBoatStatus();
+                    newStatus.setBoat(boatOpt.get());
+                    newStatus.setSlot(slotOpt.get());
+                    newStatus.setBookingDate(date);
+                    newStatus.setAvailableSeats(boatOpt.get().getCapacity());
+                    newStatus.setAvailable(true);
+                    newStatus.setBoatStatus("Available");
+                    return newStatus;
+                });
+
+        if (!status.isAvailable()) return "Slot is full.";
+        if (status.getAvailableSeats() < seats) return "Only " + status.getAvailableSeats() + " seats available.";
 
         PublicBoatBooking booking = new PublicBoatBooking();
-        booking.setUser(userRepository.findById(userId).get());
-        booking.setBoat(boatOptional.get());
-        booking.setSlot(slotRepository.findById(slotId).get());
-        booking.setBookingDate(bookingDate);
-        booking.setSeatsBooked(seatsBooked);
+        booking.setUser(userOpt.get());
+        booking.setBoat(boatOpt.get());
+        booking.setSlot(slotOpt.get());
+        booking.setBookingDate(date);
+        booking.setSeatsBooked(seats);
+        booking.setStatus("confirmed");
+        bookingRepo.save(booking);
 
-        bookingRepository.save(booking);
-        return "Booking successful!";
+        int remainingSeats = status.getAvailableSeats() - seats;
+        status.setAvailableSeats(remainingSeats);
+        status.setAvailable(remainingSeats > 0);
+        status.setBoatStatus(remainingSeats == 0 ? "Full" : "Available");
+        statusRepo.save(status);
+
+        return "Public-boat booking successful!";
     }
+
 }

@@ -4,9 +4,9 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "public_boat_slots")
+@Table(name = "private_boat_slots")
 @Data
-public class PublicBoatSlot {
+public class PrivateBoatSlot {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int slotId;
