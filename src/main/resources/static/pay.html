@@ -1,0 +1,80 @@
+<!-- pay.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Boat Booking Payment</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+<h2>Confirm Your Boat Booking</h2>
+<button id="pay-button">Pay Now</button>
+
+<script>
+    // These variables should come from previous page or localStorage
+    const boatType = localStorage.getItem("boatType") || "public"; // "private" or "public"
+    const userId = localStorage.getItem("userId");
+    const boatId = localStorage.getItem("boatId");
+    const slotId = localStorage.getItem("slotId");
+    const bookingDate = localStorage.getItem("bookingDate");
+    const seatCount = parseInt(localStorage.getItem("seatCount")) || 1;
+
+    const amount = boatType === "public" ? 500 * seatCount : 1500;
+
+    document.getElementById('pay-button').onclick = function () {
+      fetch(`http://localhost:8081/api/payments/create-order?amount=${amount}&currency=INR`, {
+        method: 'POST'
+      })
+      .then(response => response.json())
+      .then(order => {
+        const options = {
+          key: "rzp_test_QLskUZfgxNvznF", // Replace with your Razorpay API key
+          amount: order.amount,
+          currency: order.currency,
+          name: "SagaraMitra",
+          description: "Boat Booking Payment",
+          order_id: order.id,
+          handler: function (response) {
+            alert("Payment Successful! ID: " + response.razorpay_payment_id);
+
+            const bookingData = {
+              userId: userId,
+              boatId: boatId,
+              slotId: slotId,
+              date: bookingDate,
+              seatCount: seatCount
+            };
+
+            const url = `http://localhost:8081/api/bookings/${boatType}/confirm`;
+
+            fetch(url, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(bookingData)
+            })
+              .then(res => res.text())
+              .then(msg => {
+                alert(msg);
+                if (msg.toLowerCase().includes("success")) {
+                  window.location.href = "profile.html";
+                }
+              })
+              .catch(err => {
+                console.error("Booking failed:", err);
+                alert("Booking failed after payment. Please contact support.");
+              });
+          },
+          theme: {
+            color: "#3399cc"
+          }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+      })
+      .catch(err => console.error(err));
+    };
+</script>
+</body>
+</html>

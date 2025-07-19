@@ -2,140 +2,163 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SagaraMitra • Register</title>
-
-    <!-- Google Font for a clean look -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>SagaraMitra • Register</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
 
     <style>
         * {
           box-sizing: border-box;
-          font-family: "Poppins", sans-serif;
           margin: 0;
           padding: 0;
+          font-family: 'Poppins', sans-serif;
         }
 
-        /* Hero banner */
+        body {
+  background: url("https://static.vecteezy.com/system/resources/thumbnails/040/890/255/small_2x/ai-generated-empty-wooden-table-on-the-natural-background-for-product-display-free-photo.jpg") no-repeat center top;
+  background-size: cover;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-position: center top;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow-x: hidden;
+}
+
+
         .hero {
-          background: url("images/boat-hero.jpg") center/cover no-repeat;
-          height: 200px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          margin-top: 20px;
           color: #fff;
-          text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
-        }
-
-        .hero h1 {
+          text-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+          font-size: 2.2rem;
           font-weight: 600;
-          font-size: 2rem;
-          letter-spacing: 1px;
+          animation: fadeInDown 1s ease;
         }
 
-        /* Center the form card */
-        .wrapper {
-          min-height: calc(100vh - 200px);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: linear-gradient(135deg, #e0f1ff 0%, #f7fbff 100%);
-          padding: 40px 15px;
+        @keyframes fadeInDown {
+          from { opacity: 0; transform: translateY(-30px); }
+          to { opacity: 1; transform: translateY(0); }
         }
 
         .card {
-          background: #ffffff;
-          padding: 30px 25px;
-          border-radius: 15px;
-          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-          width: 100%;
-          max-width: 400px;
+  background: rgba(255, 255, 255, 0.7); /* semi-transparent white */
+  padding: 30px 25px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  backdrop-filter: blur(10px); /* optional: adds a glass effect */
+}
+
+
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
         }
 
         .card h2 {
           text-align: center;
           margin-bottom: 1.2rem;
-          color: #0560fd;
+          color: #ffffff;
           font-weight: 600;
-          letter-spacing: 0.5px;
+          font-size: 1.6rem;
+          text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
         }
 
         .form-group {
-          margin-bottom: 1rem;
+          margin-bottom: 1.1rem;
         }
 
         .form-group input {
           width: 100%;
-          padding: 10px 12px;
-          border: 1px solid #cfd8dc;
+          padding: 12px;
           border-radius: 8px;
-          background: #fafbfc;
-          transition: border 0.2s;
-          font-size: 0.95rem;
+          border: 1px solid rgba(255,255,255,0.3);
+          background: rgba(255,255,255,0.2);
+          color: #fff;
+          font-size: 1rem;
+          transition: 0.3s;
+        }
+
+        .form-group input::placeholder {
+          color: #e0e0e0;
         }
 
         .form-group input:focus {
           outline: none;
-          border-color: #0560fd;
+          border-color: #2d89ff;
+          background-color: rgba(255, 255, 255, 0.25);
+          box-shadow: 0 0 8px #2d89ff;
         }
 
         .btn-primary {
           width: 100%;
           padding: 12px;
-          background: #0560fd;
-          color: #fff;
+          background: #2d89ff;
+          color: white;
           border: none;
           border-radius: 8px;
           font-size: 1rem;
           cursor: pointer;
-          transition: background 0.2s, transform 0.15s;
+          transition: 0.3s;
+          font-weight: 500;
         }
 
         .btn-primary:hover {
-          background: #0047d1;
-          transform: translateY(-2px);
+          background: #1a66e0;
+          transform: scale(1.02);
         }
 
-        .btn-primary:active {
-          transform: translateY(0);
+        .water {
+          position: absolute;
+          bottom: 0;
+          width: 100%;
+          height: 90px;
+          background: url('images/water.png') repeat-x;
+          background-size: contain;
+          animation: wave 6s linear infinite;
+          z-index: -1;
         }
 
-        /* Small screens */
+        @keyframes wave {
+          from { background-position-x: 0; }
+          to { background-position-x: 1000px; }
+        }
+
         @media (max-width: 480px) {
-          .hero h1 {
-            font-size: 1.6rem;
-          }
+          .card h2 { font-size: 1.3rem; }
+          .hero { font-size: 1.7rem; }
         }
     </style>
 </head>
 <body>
 
-<!-- Hero Banner -->
-<section class="hero">
-    <h1>Join SagaraMitra</h1>
-</section>
+<div class="hero">Join SagaraMitra</div>
 
-<!-- Registration Card -->
-<section class="wrapper">
-    <div class="card">
-        <h2>Create your account</h2>
-        <form id="registerForm">
-            <div class="form-group">
-                <input type="text" id="userName" placeholder="Full Name" required />
-            </div>
-            <div class="form-group">
-                <input type="number" id="userAge" placeholder="Age" min="1" required />
-            </div>
-            <div class="form-group">
-                <input type="tel" id="userPhone" placeholder="Phone Number" maxlength="15" required />
-            </div>
-            <div class="form-group">
-                <input type="password" id="userPassword" placeholder="Password (max 8 chars)" maxlength="8" required />
-            </div>
-            <button type="submit" class="btn-primary">Register</button>
-        </form>
-    </div>
-</section>
+<div class="card">
+    <h2>Create your account</h2>
+    <form id="registerForm">
+        <div class="form-group">
+            <input type="text" id="userName" placeholder="Full Name" required />
+        </div>
+        <div class="form-group">
+            <input type="number" id="userAge" placeholder="Age" min="1" required />
+        </div>
+        <div class="form-group">
+            <input type="tel" id="userPhone" placeholder="Phone Number" maxlength="15" required />
+        </div>
+        <div class="form-group">
+            <input type="password" id="userPassword" placeholder="Password (max 8 chars)" maxlength="8" required />
+        </div>
+        <button type="submit" class="btn-primary">Register</button>
+    </form>
+</div>
+
+<div class="water"></div>
 
 <script>
     document.getElementById("registerForm").addEventListener("submit", async (e) => {
@@ -154,11 +177,13 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(user)
         });
+
         const msg = await res.text();
 
-        alert(msg);
         if (msg.toLowerCase().includes("success")) {
           window.location.href = "login.html";
+        } else {
+          alert("Registration failed.");
         }
       } catch (err) {
         console.error("Registration error:", err);
