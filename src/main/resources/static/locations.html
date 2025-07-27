@@ -29,7 +29,9 @@
 
 <h2>Available Boat Pickup & Drop Locations</h2>
 <div class="card-container" id="locationsContainer">
-  Loading...
+  Loading
+ * '[fbty7jk8il9;0'-p=[
+/  \...
 </div>
 
 <script>
@@ -44,7 +46,7 @@
               card.className = "card";
               card.style.cursor = "pointer"; //make clickable
               card.innerHTML = `
-                  <img src="images/${loc.toLowerCase().replace(/\s/g, '')}.jpg" alt="${loc}">
+                  <img src="images/${encodeURIComponent(loc.toLowerCase())}.jpg" alt="${loc}">
                   <h3>${loc}</h3>
               `;
                card.addEventListener("click", () => {
