@@ -219,12 +219,30 @@
     .then(msg => {
       document.getElementById("availabilityMsg").innerText = msg;
 
-      if (msg.toLowerCase().includes("available")) {
-        const confirmBooking = confirm("Slot is available. Do you want to confirm booking?");
-        if (confirmBooking) {
-          bookBoat(date, slotId, seats);
-        }
-      }
+<!--      if (msg.toLowerCase().includes("available")) {-->
+<!--        const confirmBooking = confirm("Slot is available. Do you want to confirm booking?");-->
+<!--        if (confirmBooking) {-->
+<!--          bookBoat(date, slotId, seats);-->
+<!--        }-->
+<!--      }-->
+       if (msg.toLowerCase().includes("available")) {
+  const confirmPayment = confirm("Slot is available. Proceed to payment?");
+  if (confirmPayment) {
+    // Store booking data for pay.html
+    localStorage.setItem("boatType", selectedType);
+    localStorage.setItem("userId", localStorage.getItem("userId"));
+    localStorage.setItem("boatId", selectedBoat.boatId);
+    localStorage.setItem("slotId", slotId);
+    localStorage.setItem("bookingDate", date);
+    if (selectedType === "public") {
+      localStorage.setItem("seatCount", seats);
+    }
+
+    closeModal();
+    window.location.href = "pay.html";
+  }
+}
+
     })
     .catch(err => {
       console.error("Error checking availability:", err);
