@@ -100,6 +100,7 @@
   let selectedBoat = null;
   let selectedType = null;
 
+  // Fetch boats by location
   fetch(`http://localhost:8081/boats/by-location?location=${encodeURIComponent(selectedLocation)}`)
     .then(res => res.json())
     .then(data => {
@@ -118,7 +119,6 @@
 
         const pbContainer = document.createElement("div");
         pbContainer.className = "boat-container";
-        pbContainer.id = "publicBoats";
         container.appendChild(pbContainer);
 
         data.publicBoats.forEach(boat => {
@@ -144,7 +144,6 @@
 
         const prContainer = document.createElement("div");
         prContainer.className = "boat-container";
-        prContainer.id = "privateBoats";
         container.appendChild(prContainer);
 
         data.privateBoats.forEach(boat => {
@@ -201,94 +200,47 @@
   }
 
   function checkAvailability() {
-  const date = document.getElementById("bookingDate").value;
-  const slotId = document.getElementById("slotSelect").value;
-  const seats = document.getElementById("seatsInput").value;
+    const date = document.getElementById("bookingDate").value;
+    const slotId = document.getElementById("slotSelect").value;
+    const seats = document.getElementById("seatsInput").value;
 
-  if (!date || !slotId || (selectedType === "public" && !seats)) {
-    alert("Please fill in all required fields.");
-    return;
-  }
-
-  const availabilityUrl = selectedType === "public"
-    ? `http://localhost:8081/availability/public?boatId=${selectedBoat.boatId}&date=${date}&slotId=${slotId}&seats=${seats}`
-    : `http://localhost:8081/availability/private?boatId=${selectedBoat.boatId}&date=${date}&slotId=${slotId}`;
-
-  fetch(availabilityUrl)
-    .then(res => res.text())
-    .then(msg => {
-      document.getElementById("availabilityMsg").innerText = msg;
-
-<!--      if (msg.toLowerCase().includes("available")) {-->
-<!--        const confirmBooking = confirm("Slot is available. Do you want to confirm booking?");-->
-<!--        if (confirmBooking) {-->
-<!--          bookBoat(date, slotId, seats);-->
-<!--        }-->
-<!--      }-->
-       if (msg.toLowerCase().includes("available")) {
-  const confirmPayment = confirm("Slot is available. Proceed to payment?");
-  if (confirmPayment) {
-    // Store booking data for pay.html
-    localStorage.setItem("boatType", selectedType);
-    localStorage.setItem("userId", localStorage.getItem("userId"));
-    localStorage.setItem("boatId", selectedBoat.boatId);
-    localStorage.setItem("slotId", slotId);
-    localStorage.setItem("bookingDate", date);
-    if (selectedType === "public") {
-      localStorage.setItem("seatCount", seats);
+    if (!date || !slotId || (selectedType === "public" && !seats)) {
+      alert("Please fill in all required fields.");
+      return;
     }
 
-    closeModal();
-    window.location.href = "pay.html";
+    const availabilityUrl = selectedType === "public"
+      ? `http://localhost:8081/availability/public?boatId=${selectedBoat.boatId}&date=${date}&slotId=${slotId}&seats=${seats}`
+      : `http://localhost:8081/availability/private?boatId=${selectedBoat.boatId}&date=${date}&slotId=${slotId}`;
+
+    fetch(availabilityUrl)
+      .then(res => res.text())
+      .then(msg => {
+        document.getElementById("availabilityMsg").innerText = msg;
+
+        if (msg.toLowerCase().includes("available")) {
+          const confirmPayment = confirm("Slot is available. Proceed to payment?");
+          if (confirmPayment) {
+            // Store booking data for pay.html
+            localStorage.setItem("boatType", selectedType);
+            localStorage.setItem("userId", localStorage.getItem("userId"));
+            localStorage.setItem("boatId", selectedBoat.boatId);
+            localStorage.setItem("slotId", slotId);
+            localStorage.setItem("bookingDate", date);
+            if (selectedType === "public") {
+              localStorage.setItem("seatCount", seats);
+            }
+
+            closeModal();
+            window.location.href = "pay.html";
+          }
+        }
+      })
+      .catch(err => {
+        console.error("Error checking availability:", err);
+        document.getElementById("availabilityMsg").innerText = "Error checking availability.";
+      });
   }
-}
-
-    })
-    .catch(err => {
-      console.error("Error checking availability:", err);
-      document.getElementById("availabilityMsg").innerText = "Error checking availability.";
-    });
-}
-function bookBoat(date, slotId, seats) {
-  const userId = localStorage.getItem("userId");
-
-  if (!userId) {
-    alert("You must be logged in to book. Redirecting to login...");
-    window.location.href = "/login.html";
-    return;
-  }
-
-  const bookingUrl = selectedType === "public"
-    ? "http://localhost:8081/book/public"
-    : "http://localhost:8081/book/private";
-
-  const bookingData = {
-    userId: parseInt(userId),
-    boatId: selectedBoat.boatId,
-    slotId: parseInt(slotId),
-    bookingDate: date
-  };
-
-  if (selectedType === "public") {
-    bookingData.seats = parseInt(seats);
-  }
-
-  fetch(bookingUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(bookingData)
-  })
-    .then(res => res.text())
-    .then(msg => {
-      alert(msg);
-      closeModal();
-    })
-    .catch(err => {
-      console.error("Booking error:", err);
-      alert("Booking failed. Try again later.");
-    });
-}
-
 </script>
 
 </body>
