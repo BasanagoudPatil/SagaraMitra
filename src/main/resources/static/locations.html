@@ -3,35 +3,122 @@
 <head>
   <meta charset="UTF-8">
   <title>Available Locations</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        margin: 0;
+        background: linear-gradient(to bottom, #e0f7fa, #ffffff);
+        color: #333;
+    }
+
+    /* Hero / Header */
+    .hero {
+        text-align: center;
+        padding: 40px 20px;
+        background: url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e") no-repeat center/cover;
+        color: white;
+        position: relative;
+    }
+    .hero::after {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.4);
+    }
+    .hero h1, .hero p {
+        position: relative;
+        z-index: 2;
+    }
+    .hero h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+    }
+    .hero p {
+        font-size: 1.2rem;
+    }
+
+    /* Container */
+    .container {
+        padding: 40px;
+        max-width: 1200px;
+        margin: auto;
+    }
+
+    /* Cards */
     .card-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+        justify-items: center;
     }
     .card {
-        width: 200px;
-        border: 1px solid #ccc;
-        border-radius: 12px;
-        box-shadow: 2px 2px 8px gray;
+        width: 100%;
+        max-width: 300px;
+        border-radius: 15px;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.1);
         overflow: hidden;
+        background: white;
         text-align: center;
-        padding: 10px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
+    }
+    .card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.2);
     }
     .card img {
         width: 100%;
-        height: 120px;
+        height: 180px;
         object-fit: cover;
+    }
+    .card h3 {
+        margin: 15px 0;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #0077b6;
+    }
+
+    /* About Honnavar */
+    .about {
+        margin-top: 50px;
+        padding: 20px;
+        background: #f1faff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .about h2 {
+        color: #0077b6;
+        margin-bottom: 10px;
+    }
+    .about p {
+        line-height: 1.6;
     }
   </style>
 </head>
 <body>
 
-<h2>Available Boat Pickup & Drop Locations</h2>
-<div class="card-container" id="locationsContainer">
-  Loading
- * '[fbty7jk8il9;0'-p=[
-/  \...
+<!-- Hero Section -->
+<div class="hero">
+  <h1>🌊 Explore Boat Pickup & Drop Locations</h1>
+  <p>Experience the scenic beauty of Honnavar’s rivers and beaches</p>
+</div>
+
+<!-- Cards -->
+<div class="container">
+  <div class="card-container" id="locationsContainer">
+    Loading...
+  </div>
+
+  <!-- About Honnavar -->
+  <div class="about">
+    <h2>About Honnavar</h2>
+    <p>
+      Honnavar, a coastal town in Karnataka, is known for its scenic beauty, serene beaches,
+      and the iconic Sharavathi River. From lush greenery to historical significance,
+      this ancient port town offers a unique boating experience amidst nature and culture.
+    </p>
+  </div>
 </div>
 
 <script>
@@ -44,12 +131,11 @@
           locations.forEach(loc => {
               const card = document.createElement("div");
               card.className = "card";
-              card.style.cursor = "pointer"; //make clickable
               card.innerHTML = `
                   <img src="images/${encodeURIComponent(loc.toLowerCase())}.jpg" alt="${loc}">
                   <h3>${loc}</h3>
               `;
-               card.addEventListener("click", () => {
+              card.addEventListener("click", () => {
                   localStorage.setItem("selectedLocation", loc);
                   window.location.href = "boats.html";
               });

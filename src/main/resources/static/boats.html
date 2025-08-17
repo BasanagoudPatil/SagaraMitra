@@ -3,115 +3,193 @@
 <head>
   <meta charset="UTF-8">
   <title>Available Boats</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    .section-title {
-      margin-top: 20px;
-      font-size: 20px;
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      background: linear-gradient(to bottom, #e0f7fa, #ffffff);
+      color: #333;
     }
 
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      padding: 40px 20px;
+      background: url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e") no-repeat center/cover;
+      color: white;
+      position: relative;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+    }
+    .hero h1 {
+      font-size: 2.5rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Section Title */
+    .section-title {
+      margin: 30px 0 15px;
+      font-size: 1.6rem;
+      color: #0077b6;
+      border-left: 6px solid #0077b6;
+      padding-left: 10px;
+    }
+
+    /* Boat cards container */
     .boat-container {
       display: flex;
       flex-wrap: wrap;
       gap: 20px;
-    }
-
-    .boat-card {
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      width: 220px;
       padding: 10px;
-      text-align: center;
-      box-shadow: 2px 2px 6px lightgray;
-      cursor: pointer;
     }
 
+    /* Boat card */
+    .boat-card {
+      border: none;
+      border-radius: 15px;
+      width: 230px;
+      background: #fff;
+      padding: 15px;
+      text-align: center;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .boat-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.2);
+    }
     .boat-card img {
       width: 100%;
-      height: 120px;
+      height: 150px;
       object-fit: cover;
-      border-radius: 8px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+    .boat-card h4 {
+      margin: 8px 0;
+      font-size: 1.2rem;
+      color: #0077b6;
+    }
+    .boat-card p {
+      margin: 5px 0;
+      font-size: 0.95rem;
+      color: #444;
     }
 
-    /* Modal Styles */
-    #bookingModal {
-      display: none;
-      position: fixed;
-      top: 10%;
-      left: 30%;
-      width: 40%;
-      background: #fff;
-      padding: 20px;
-      border: 1px solid #ccc;
-      box-shadow: 0 0 10px gray;
-      z-index: 1000;
-    }
-
-    #bookingModal input,
-    #bookingModal select {
-      width: 100%;
-      padding: 6px;
-      margin: 10px 0;
-    }
-
+    /* Modal Styling */
     #modalOverlay {
       display: none;
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.6);
       z-index: 999;
+      backdrop-filter: blur(2px);
+    }
+    #bookingModal {
+      display: none;
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 400px;
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+      z-index: 1000;
+    }
+    #bookingModal h3 {
+      margin-top: 0;
+      color: #0077b6;
+    }
+    #bookingModal input,
+    #bookingModal select {
+      width: 100%;
+      padding: 8px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    #availabilityMsg {
+      font-weight: bold;
+      margin: 10px 0;
+    }
+    .modal-btn {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-right: 8px;
+      transition: background 0.3s ease;
+    }
+    .confirm-btn {
+      background: #0077b6;
+      color: white;
+    }
+    .confirm-btn:hover {
+      background: #005f8a;
+    }
+    .cancel-btn {
+      background: #ccc;
+    }
+    .cancel-btn:hover {
+      background: #aaa;
     }
   </style>
 </head>
 <body>
 
-<h2>Boats Available at <span id="locationTitle"></span></h2>
+<!-- Hero -->
+<div class="hero">
+  <h1>🚤 Boats Available at <span id="locationTitle"></span></h1>
+</div>
 
-<div id="boatListContainer"></div>
+<div id="boatListContainer" style="padding: 20px;"></div>
 
-<!-- Modal Overlay -->
+<!-- Modal -->
 <div id="modalOverlay"></div>
-
-<!-- Booking Modal -->
 <div id="bookingModal">
   <h3 id="modalTitle"></h3>
   <input type="date" id="bookingDate" />
-
   <label for="slotSelect">Slot:</label>
   <select id="slotSelect"></select>
-
   <div id="seatsContainer" style="display: none;">
     <label for="seatsInput">Number of Seats:</label>
     <input type="number" id="seatsInput" min="1" />
   </div>
-
   <p id="availabilityMsg"></p>
-
-  <button onclick="checkAvailability()">Check Availability</button>
-  <button onclick="closeModal()">Cancel</button>
+  <button class="modal-btn confirm-btn" onclick="checkAvailability()">Check Availability</button>
+  <button class="modal-btn cancel-btn" onclick="closeModal()">Cancel</button>
 </div>
 
 <script>
-  const selectedLocation = localStorage.getItem("selectedLocation");
+  const selectedLocation = localStorage.getItem("selectedLocation") || "";
   document.getElementById("locationTitle").innerText = selectedLocation;
 
   let selectedBoat = null;
   let selectedType = null;
 
-  // Fetch boats by location
-  fetch(`http://localhost:8081/boats/by-location?location=${encodeURIComponent(selectedLocation)}`)
+  // ✅ Fetch boats
+  fetch(`http://localhost:8081/boats/by-location?location=${encodeURIComponent(selectedLocation.trim())}`)
     .then(res => res.json())
     .then(data => {
       const container = document.getElementById("boatListContainer");
 
-      if (data.publicBoats.length === 0 && data.privateBoats.length === 0) {
+      if ((!data.publicBoats || data.publicBoats.length === 0) &&
+          (!data.privateBoats || data.privateBoats.length === 0)) {
         container.innerHTML = "<p>No boats available at this location.</p>";
         return;
       }
 
-      if (data.publicBoats.length > 0) {
+      if (data.publicBoats && data.publicBoats.length > 0) {
         const title = document.createElement("h3");
         title.className = "section-title";
         title.innerText = "Public Boats";
@@ -136,7 +214,7 @@
         });
       }
 
-      if (data.privateBoats.length > 0) {
+      if (data.privateBoats && data.privateBoats.length > 0) {
         const title = document.createElement("h3");
         title.className = "section-title";
         title.innerText = "Private Boats";
@@ -165,6 +243,7 @@
       document.getElementById("boatListContainer").innerHTML = "<p>Failed to load boats.</p>";
     });
 
+  // ✅ Open modal
   function openModal(boat, type) {
     selectedBoat = boat;
     selectedType = type;
@@ -191,6 +270,10 @@
           option.text = slot.slotTime;
           slotSelect.appendChild(option);
         });
+      })
+      .catch(err => {
+        console.error("Error fetching slots:", err);
+        document.getElementById("availabilityMsg").innerText = "Failed to load slots.";
       });
   }
 
@@ -199,13 +282,16 @@
     document.getElementById("bookingModal").style.display = "none";
   }
 
+  // ✅ Check availability
   function checkAvailability() {
     const date = document.getElementById("bookingDate").value;
     const slotId = document.getElementById("slotSelect").value;
     const seats = document.getElementById("seatsInput").value;
+    const msgPara = document.getElementById("availabilityMsg");
 
-    if (!date || !slotId || (selectedType === "public" && !seats)) {
-      alert("Please fill in all required fields.");
+    if (!date || !slotId || (selectedType === "public" && (!seats || seats <= 0))) {
+      msgPara.style.color = "red";
+      msgPara.innerText = "Please fill in all required fields.";
       return;
     }
 
@@ -214,34 +300,36 @@
       : `http://localhost:8081/availability/private?boatId=${selectedBoat.boatId}&date=${date}&slotId=${slotId}`;
 
     fetch(availabilityUrl)
-      .then(res => res.text())
-      .then(msg => {
-        document.getElementById("availabilityMsg").innerText = msg;
+      .then(res => res.json())
+      .then(data => {
+        const msg = data.message;
+        const isAvailable = data.available;
+        msgPara.style.color = isAvailable ? "green" : "red";
+        msgPara.innerText = msg;
 
-        if (msg.toLowerCase().includes("available")) {
-          const confirmPayment = confirm("Slot is available. Proceed to payment?");
-          if (confirmPayment) {
-            // Store booking data for pay.html
+        if (isAvailable) {
+          const confirmBooking = confirm("✅ " + msg + "\n\nProceed to payment?");
+          if (confirmBooking) {
             localStorage.setItem("boatType", selectedType);
-            localStorage.setItem("userId", localStorage.getItem("userId"));
             localStorage.setItem("boatId", selectedBoat.boatId);
             localStorage.setItem("slotId", slotId);
             localStorage.setItem("bookingDate", date);
             if (selectedType === "public") {
               localStorage.setItem("seatCount", seats);
             }
-
             closeModal();
             window.location.href = "pay.html";
           }
+        } else {
+          alert("❌ Booking unsuccessful: " + msg);
         }
       })
       .catch(err => {
         console.error("Error checking availability:", err);
-        document.getElementById("availabilityMsg").innerText = "Error checking availability.";
+        msgPara.style.color = "red";
+        msgPara.innerText = "Error checking availability.";
       });
   }
 </script>
-
 </body>
 </html>

@@ -1,11 +1,164 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Booking Successful</title>
+  <meta charset="UTF-8">
+  <title>Booking Successful | SagaraMitra</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #00c6ff, #0072ff);
+      color: #fff;
+      text-align: center;
+      padding: 40px;
+    }
+    .card {
+      background: white;
+      color: #333;
+      border-radius: 15px;
+      padding: 30px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0px 6px 15px rgba(0,0,0,0.3);
+      animation: fadeIn 1s ease-in-out;
+    }
+    h1 {
+      color: #28a745;
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+    .emoji {
+      font-size: 60px;
+      animation: bounce 1.5s infinite;
+    }
+    .details {
+      text-align: left;
+      margin: 20px 0;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    .btn {
+      display: inline-block;
+      margin: 10px;
+      padding: 12px 20px;
+      border-radius: 8px;
+      background: #0072ff;
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      transition: background 0.3s;
+      cursor: pointer;
+    }
+    .btn:hover { background: #0056cc; }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+  </style>
 </head>
 <body>
-<h1>🎉 Booking Confirmed!</h1>
-<p>Your boat booking has been successfully confirmed. Check your profile for details.</p>
-<a href="profile.html">Go to Profile</a>
+
+<div class="card">
+  <div class="emoji">🎉</div>
+  <h1>Booking Confirmed!</h1>
+  <p>Thank you for booking with <b>SagaraMitra</b>. Your boat trip is confirmed 🚤</p>
+
+  <div class="details">
+    <p><b>User Name:</b> <span id="userName">Loading...</span></p>
+    <p><b>User Phone:</b> <span id="userPhone">Loading...</span></p>
+    <p><b>Boat Type:</b> <span id="boatType"></span></p>
+    <p><b>Boat ID:</b> <span id="boatId"></span></p>
+    <p><b>Slot:</b> <span id="slotId"></span></p>
+    <p><b>Date:</b> <span id="bookingDate"></span></p>
+    <p><b>Seats:</b> <span id="seatCount"></span></p>
+    <p><b>Amount Paid:</b> ₹<span id="amountPaid"></span></p>
+  </div>
+
+  <button class="btn" onclick="downloadTicket()">🎫 Download Ticket</button>
+  <a href="index.html" class="btn">🏠 Home</a>
+  <a href="login.html" class="btn" onclick="logout()">🚪 Logout</a>
+</div>
+
+<script>
+  // Booking details from localStorage
+  const boatType = localStorage.getItem("boatType") || "N/A";
+  const boatId = localStorage.getItem("boatId") || "N/A";
+  const slotId = localStorage.getItem("slotId") || "N/A";
+  const bookingDate = localStorage.getItem("bookingDate") || "N/A";
+  const seatCount = boatType === "public"
+      ? (localStorage.getItem("seatCount") || 1)
+      : "Private Booking";
+  const amountPaid = boatType === "public"
+      ? 500 * seatCount
+      : 1500;
+
+  document.getElementById("boatType").innerText = boatType.toUpperCase();
+  document.getElementById("boatId").innerText = boatId;
+  document.getElementById("slotId").innerText = slotId;
+  document.getElementById("bookingDate").innerText = bookingDate;
+  document.getElementById("seatCount").innerText = seatCount;
+  document.getElementById("amountPaid").innerText = amountPaid;
+
+  let userName = "Guest";
+  let userPhone = "N/A";
+
+  // ✅ Fetch user details from backend
+  fetch("/users/current-user")
+    .then(res => {
+      if (!res.ok) throw new Error("Not logged in");
+      return res.json();
+    })
+    .then(user => {
+      userName = user.userName;
+      userPhone = user.userPhone;
+      localStorage.setItem("userId", user.userId);
+      document.getElementById("userName").innerText = userName;
+      document.getElementById("userPhone").innerText = userPhone;
+    })
+    .catch(err => {
+      console.error("User fetch failed:", err);
+      alert("You are not logged in. Redirecting...");
+      window.location.href = "login.html";
+    });
+
+  function logout() {
+    localStorage.clear();
+    alert("You have been logged out.");
+  }
+
+  // 🎫 Download ticket as PDF
+  function downloadTicket() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.text("SagaraMitra Boat Ticket", 60, 20);
+
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+
+    doc.text("Booking Confirmation 🎉", 70, 30);
+
+    doc.text(`User Name: ${userName}`, 20, 50);
+    doc.text(`Phone: ${userPhone}`, 20, 60);
+    doc.text(`Boat Type: ${boatType.toUpperCase()}`, 20, 70);
+    doc.text(`Boat ID: ${boatId}`, 20, 80);
+    doc.text(`Slot: ${slotId}`, 20, 90);
+    doc.text(`Date: ${bookingDate}`, 20, 100);
+    doc.text(`Seats: ${seatCount}`, 20, 110);
+    doc.text(`Amount Paid: ₹${amountPaid}`, 20, 120);
+
+    doc.setFontSize(10);
+    doc.text("Please show this ticket to the boat owner at boarding.", 20, 140);
+
+    doc.save(`Boat_Ticket_${bookingDate}.pdf`);
+  }
+</script>
+
 </body>
 </html>

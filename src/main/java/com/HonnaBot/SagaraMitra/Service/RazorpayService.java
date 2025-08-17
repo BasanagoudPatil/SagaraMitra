@@ -16,14 +16,18 @@ public class RazorpayService {
     @Value("${razorpay.api.secret}")
     private String apiSecret ;
 
-    public String createOrder(int amount , String currency , String receiptId) throws RazorpayException {
+    public String createOrder(int amount, String currency, String receiptId) throws RazorpayException {
         RazorpayClient razorpayClient = new RazorpayClient(apiKey, apiSecret);
+
         JSONObject orderRequest = new JSONObject();
-        orderRequest.put("amount", amount * 100);
+        orderRequest.put("amount", amount * 100); // Razorpay works in paise
         orderRequest.put("currency", currency);
         orderRequest.put("receipt", receiptId);
 
         Order order = razorpayClient.orders.create(orderRequest);
-        return order.toString();
+
+        // ✅ Return proper JSON (not just .toString())
+        return order.toJson().toString();
     }
+
 }
