@@ -34,11 +34,24 @@
 
     /* Section Title */
     .section-title {
-      margin: 30px 0 15px;
-      font-size: 1.6rem;
+      margin: 40px 0 20px;
+      font-size: 1.8rem;
+      font-weight: 700;
       color: #0077b6;
-      border-left: 6px solid #0077b6;
-      padding-left: 10px;
+      text-align: center;
+      position: relative;
+      display: inline-block;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .section-title::after {
+      content: "";
+      display: block;
+      width: 60px;
+      height: 4px;
+      background: #0077b6;
+      margin: 8px auto 0;
+      border-radius: 2px;
     }
 
     /* Boat cards container */
@@ -47,6 +60,7 @@
       flex-wrap: wrap;
       gap: 20px;
       padding: 10px;
+      justify-content: center;
     }
 
     /* Boat card */
@@ -83,7 +97,7 @@
       color: #444;
     }
 
-    /* Modal Styling */
+    /* Overlay */
     #modalOverlay {
       display: none;
       position: fixed;
@@ -93,6 +107,8 @@
       z-index: 999;
       backdrop-filter: blur(2px);
     }
+
+    /* Booking Modal */
     #bookingModal {
       display: none;
       position: fixed;
@@ -143,6 +159,45 @@
     .cancel-btn:hover {
       background: #aaa;
     }
+
+    /* Custom Confirmation Popup */
+    #confirmPopup {
+      display: none;
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+      z-index: 2000;
+      max-width: 450px;
+      width: 90%;
+    }
+    #confirmPopup h3 {
+      margin-top: 0;
+      color: #0077b6;
+    }
+    #confirmPopup table {
+      width: 100%;
+      margin: 15px 0;
+      border-collapse: collapse;
+    }
+    #confirmPopup td {
+      padding: 6px 10px;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+    #confirmPopup td:last-child {
+      font-weight: 600;
+      text-align: right;
+    }
+    #totalAmount {
+      font-size: 1.2rem;
+      color: #e63946;
+      font-weight: 700;
+    }
   </style>
 </head>
 <body>
@@ -170,14 +225,31 @@
   <button class="modal-btn cancel-btn" onclick="closeModal()">Cancel</button>
 </div>
 
+<!-- Custom Confirmation Popup -->
+<div id="confirmPopup">
+  <h3>Booking Summary</h3>
+  <table>
+    <tr><td>Boat</td><td id="popupBoat"></td></tr>
+    <tr><td>Date</td><td id="popupDate"></td></tr>
+    <tr><td>Slot</td><td id="popupSlot"></td></tr>
+    <tr id="popupSeatsRow" style="display:none;"><td>Seats</td><td id="popupSeats"></td></tr>
+    <tr><td>Price</td><td id="popupPrice"></td></tr>
+    <tr><td>Total</td><td id="totalAmount"></td></tr>
+  </table>
+  <p>✅ Slot available. Proceed to payment?</p>
+  <button class="modal-btn confirm-btn" onclick="proceedPayment()">OK</button>
+  <button class="modal-btn cancel-btn" onclick="closeConfirm()">Cancel</button>
+</div>
+
 <script>
   const selectedLocation = localStorage.getItem("selectedLocation") || "";
   document.getElementById("locationTitle").innerText = selectedLocation;
 
   let selectedBoat = null;
   let selectedType = null;
+  let tempBookingData = {};
 
-  // ✅ Fetch boats
+  // Fetch boats
   fetch(`http://localhost:8081/boats/by-location?location=${encodeURIComponent(selectedLocation.trim())}`)
     .then(res => res.json())
     .then(data => {
@@ -243,7 +315,7 @@
       document.getElementById("boatListContainer").innerHTML = "<p>Failed to load boats.</p>";
     });
 
-  // ✅ Open modal
+  // Open modal
   function openModal(boat, type) {
     selectedBoat = boat;
     selectedType = type;
@@ -266,7 +338,7 @@
         slotSelect.innerHTML = "";
         slots.forEach(slot => {
           const option = document.createElement("option");
-          option.value = slot.slotId;
+          option.value = JSON.stringify(slot);
           option.text = slot.slotTime;
           slotSelect.appendChild(option);
         });
@@ -282,22 +354,66 @@
     document.getElementById("bookingModal").style.display = "none";
   }
 
-  // ✅ Check availability
+  // Custom Confirm Popup
+  function showConfirm(msg, bookingData) {
+    tempBookingData = bookingData;
+
+    document.getElementById("popupBoat").innerText = selectedBoat.boatName;
+    document.getElementById("popupDate").innerText = bookingData.date;
+    document.getElementById("popupSlot").innerText = bookingData.slot.slotTime;
+
+    if (bookingData.type === "public") {
+      const pricePerSeat = 500;
+      const total = pricePerSeat * bookingData.seats;
+      document.getElementById("popupSeatsRow").style.display = "table-row";
+      document.getElementById("popupSeats").innerText = bookingData.seats;
+      document.getElementById("popupPrice").innerText = `₹${pricePerSeat} / seat`;
+      document.getElementById("totalAmount").innerText = `₹${total}`;
+    } else {
+      const price = 1500;
+      document.getElementById("popupSeatsRow").style.display = "none";
+      document.getElementById("popupPrice").innerText = `₹${price}`;
+      document.getElementById("totalAmount").innerText = `₹${price}`;
+    }
+
+    document.getElementById("confirmPopup").style.display = "block";
+    document.getElementById("modalOverlay").style.display = "block";
+  }
+
+  function closeConfirm() {
+    document.getElementById("confirmPopup").style.display = "none";
+    document.getElementById("modalOverlay").style.display = "none";
+  }
+
+  function proceedPayment() {
+    localStorage.setItem("boatType", tempBookingData.type);
+    localStorage.setItem("boatId", tempBookingData.boatId);
+    localStorage.setItem("slotId", tempBookingData.slot.slotId);
+    localStorage.setItem("bookingDate", tempBookingData.date);
+    if (tempBookingData.type === "public") {
+      localStorage.setItem("seatCount", tempBookingData.seats);
+    }
+    closeConfirm();
+    window.location.href = "pay.html";
+  }
+
+  // Check availability
   function checkAvailability() {
     const date = document.getElementById("bookingDate").value;
-    const slotId = document.getElementById("slotSelect").value;
+    const slotObj = document.getElementById("slotSelect").value;
+    const slot = JSON.parse(slotObj);
     const seats = document.getElementById("seatsInput").value;
     const msgPara = document.getElementById("availabilityMsg");
 
-    if (!date || !slotId || (selectedType === "public" && (!seats || seats <= 0))) {
+    if (!date || !slot || (selectedType === "public" && (!seats || seats <= 0))) {
       msgPara.style.color = "red";
       msgPara.innerText = "Please fill in all required fields.";
       return;
     }
 
     const availabilityUrl = selectedType === "public"
-      ? `http://localhost:8081/availability/public?boatId=${selectedBoat.boatId}&date=${date}&slotId=${slotId}&seats=${seats}`
-      : `http://localhost:8081/availability/private?boatId=${selectedBoat.boatId}&date=${date}&slotId=${slotId}`;
+      ? `http://localhost:8081/availability/public?boatId=${selectedBoat.boatId}&date=${date}&slotId=${slot.slotId}&seats=${seats}`
+      : `http://localhost:8081/availability/private?boatId=${selectedBoat.boatId}&date=${date}&slotId=${slot.slotId}`;
 
     fetch(availabilityUrl)
       .then(res => res.json())
@@ -308,18 +424,8 @@
         msgPara.innerText = msg;
 
         if (isAvailable) {
-          const confirmBooking = confirm("✅ " + msg + "\n\nProceed to payment?");
-          if (confirmBooking) {
-            localStorage.setItem("boatType", selectedType);
-            localStorage.setItem("boatId", selectedBoat.boatId);
-            localStorage.setItem("slotId", slotId);
-            localStorage.setItem("bookingDate", date);
-            if (selectedType === "public") {
-              localStorage.setItem("seatCount", seats);
-            }
-            closeModal();
-            window.location.href = "pay.html";
-          }
+          const bookingData = { type: selectedType, boatId: selectedBoat.boatId, date, seats, slot };
+          showConfirm("✅ " + msg, bookingData);
         } else {
           alert("❌ Booking unsuccessful: " + msg);
         }

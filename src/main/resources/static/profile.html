@@ -6,103 +6,157 @@
     <title>User Profile - SagaraMitra</title>
     <style>
         /* Reset and base */
-        * {
-          box-sizing: border-box;
-          margin: 0;
-          padding: 0;
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 
         body {
-          background: linear-gradient(135deg, #006994, #00a3cc);
-          color: #114669;
-          min-height: 100vh;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          padding: 20px;
+            background: linear-gradient(135deg, #006994, #00a3cc);
+            color: #114669;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
         }
 
         .profile-container {
-          background: rgba(255, 255, 255, 0.95);
-          border-radius: 20px;
-          max-width: 480px;
-          width: 100%;
-          box-shadow: 0 10px 30px rgba(0, 122, 204, 0.3);
-          padding: 30px 40px;
-          text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            max-width: 480px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0, 122, 204, 0.3);
+            padding: 30px 40px;
+            text-align: center;
+            position: relative;
         }
 
         h2 {
-          color: #007acc;
-          font-size: 2.6rem;
-          margin-bottom: 1.5rem;
-          text-shadow: 1px 1px 4px rgba(0,0,0,0.1);
+            color: #007acc;
+            font-size: 2.6rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.1);
         }
 
         .avatar {
-          width: 120px;
-          height: 120px;
-          background: #007acc;
-          border-radius: 50%;
-          margin: 0 auto 25px;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          font-size: 4rem;
-          color: #fff;
-          box-shadow: 0 4px 14px rgba(0,122,204,0.5);
-          user-select: none;
+            width: 120px;
+            height: 120px;
+            background: #007acc;
+            border-radius: 50%;
+            margin: 0 auto 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 4rem;
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(0,122,204,0.5);
+            user-select: none;
         }
 
         #profileInfo p {
-          font-size: 1.15rem;
-          margin: 15px 0;
-          font-weight: 600;
-          color: #114669;
-          letter-spacing: 0.05em;
+            font-size: 1.15rem;
+            margin: 15px 0;
+            font-weight: 600;
+            color: #114669;
+            letter-spacing: 0.05em;
         }
 
         button.edit-btn {
-          margin-top: 30px;
-          background-color: #fec84d;
-          color: #114669;
-          font-weight: 700;
-          padding: 12px 34px;
-          border: none;
-          border-radius: 12px;
-          cursor: pointer;
-          font-size: 1.1rem;
-          box-shadow: 0 6px 20px rgba(254, 200, 77, 0.4);
-          transition: background-color 0.3s ease, transform 0.2s ease;
+            margin-top: 30px;
+            background-color: #fec84d;
+            color: #114669;
+            font-weight: 700;
+            padding: 12px 34px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            box-shadow: 0 6px 20px rgba(254, 200, 77, 0.4);
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
 
         button.edit-btn:hover {
-          background-color: #ffd47d;
-          transform: translateY(-3px);
+            background-color: #ffd47d;
+            transform: translateY(-3px);
+        }
+
+        /* Modal overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-box {
+            background: #fff;
+            padding: 30px 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            animation: popup 0.3s ease;
+        }
+
+        .modal-box h3 {
+            margin-bottom: 20px;
+            color: #007acc;
+            font-size: 1.8rem;
+        }
+
+        .modal-box p {
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+            color: #114669;
+        }
+
+        .modal-btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 0 10px;
+            font-size: 1rem;
+            transition: transform 0.2s ease, background-color 0.3s ease;
+        }
+
+        .modal-btn.confirm {
+            background-color: #28a745;
+            color: #fff;
+        }
+
+        .modal-btn.confirm:hover { background-color: #45c75a; transform: translateY(-2px); }
+
+        .modal-btn.cancel {
+            background-color: #dc3545;
+            color: #fff;
+        }
+
+        .modal-btn.cancel:hover { background-color: #e4606d; transform: translateY(-2px); }
+
+        @keyframes popup {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
         }
 
         /* Responsive */
         @media (max-width: 520px) {
-          .profile-container {
-            padding: 25px 20px;
-          }
-
-          h2 {
-            font-size: 2rem;
-          }
-
-          .avatar {
-            width: 100px;
-            height: 100px;
-            font-size: 3.5rem;
-            margin-bottom: 20px;
-          }
-
-          #profileInfo p {
-            font-size: 1rem;
-            margin: 12px 0;
-          }
+            .profile-container { padding: 25px 20px; }
+            h2 { font-size: 2rem; }
+            .avatar { width: 100px; height: 100px; font-size: 3.5rem; margin-bottom: 20px; }
+            #profileInfo p { font-size: 1rem; margin: 12px 0; }
         }
     </style>
 </head>
@@ -111,14 +165,35 @@
 <div class="profile-container" role="main" aria-label="User Profile Information">
     <h2>User Profile</h2>
     <div class="avatar" aria-hidden="true" title="User Avatar">
-        <!-- Fallback: First letter of username will be shown by script -->
         <span id="avatarLetter">👤</span>
     </div>
     <div id="profileInfo" aria-live="polite">Loading profile...</div>
-    <button class="edit-btn" onclick="alert('Edit profile feature coming soon!');">Edit Profile</button>
+    <button class="edit-btn" onclick="showModal('Edit profile feature coming soon!')">Edit Profile</button>
+</div>
+
+<!-- Modal HTML -->
+<div class="modal-overlay" id="customModal">
+    <div class="modal-box">
+        <h3>Notice</h3>
+        <p id="modalMessage">Message goes here</p>
+        <button class="modal-btn confirm" onclick="closeModal()">OK</button>
+      <!--  <button class="modal-btn cancel" onclick="closeModal()">Cancel</button> -->
+    </div>
 </div>
 
 <script>
+    // Show modal function
+    function showModal(message) {
+        document.getElementById('modalMessage').textContent = message;
+        document.getElementById('customModal').classList.add('show');
+    }
+
+    // Close modal function
+    function closeModal() {
+        document.getElementById('customModal').classList.remove('show');
+    }
+
+    // Fetch user profile
     fetch('/users/current-user')
       .then(response => {
         if (!response.ok) throw new Error("User not logged in");
@@ -127,22 +202,20 @@
       .then(user => {
         localStorage.setItem("userId", user.userId);
 
-        // Fill in profile info
         document.getElementById('profileInfo').innerHTML = `
           <p><strong>Name:</strong> ${user.userName}</p>
           <p><strong>Age:</strong> ${user.userAge}</p>
           <p><strong>Phone:</strong> ${user.userPhone}</p>
         `;
 
-        // Set avatar letter first char uppercased
         const avatarLetter = document.getElementById('avatarLetter');
         const firstChar = (user.userName && user.userName[0]) ? user.userName[0].toUpperCase() : '👤';
         avatarLetter.textContent = firstChar;
       })
       .catch(error => {
         console.error("Fetch error:", error);
-        alert("You are not logged in. Redirecting to login page...");
-        window.location.href = "/index.html";
+        showModal("You are not logged in. Redirecting to login page...");
+        setTimeout(() => window.location.href = "/index.html", 3000);
       });
 </script>
 </body>

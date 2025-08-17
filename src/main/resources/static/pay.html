@@ -2,12 +2,131 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>Boat Booking Payment</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Boat Booking Payment - Honnavara</title>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: url('https://honavarboating.com/wp-content/uploads/2025/01/Screenshot_20250101-230021_Maps.jpg') no-repeat center center/cover;
+            padding: 20px;
+        }
+
+        .tourism-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #fff;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+            animation: fadeIn 1s ease;
+        }
+
+        .tourism-header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .tourism-header p {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .payment-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            max-width: 450px;
+            width: 100%;
+            padding: 30px 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 122, 204, 0.4);
+            backdrop-filter: blur(10px);
+            animation: fadeInUp 0.6s ease;
+        }
+
+        @keyframes fadeIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: #007acc;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 5px rgba(0,0,0,0.2);
+        }
+
+        .details p {
+            font-size: 1.1rem;
+            margin: 10px 0;
+            color: #114669;
+            font-weight: 600;
+        }
+
+        .total {
+            font-size: 1.4rem;
+            color: #28a745;
+            margin: 20px 0;
+            font-weight: 700;
+        }
+
+        #pay-button {
+            background: linear-gradient(45deg, #00a3cc, #007acc);
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: 700;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(0,122,204,0.4);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        #pay-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,122,204,0.6);
+        }
+
+        @media (max-width: 520px) {
+            .payment-card { padding: 25px 20px; }
+            h2 { font-size: 1.6rem; }
+            .details p { font-size: 1rem; }
+            .total { font-size: 1.2rem; }
+            #pay-button { font-size: 1rem; padding: 12px 30px; }
+            .tourism-header h1 { font-size: 1.8rem; }
+            .tourism-header p { font-size: 1rem; }
+        }
+    </style>
 </head>
 <body>
-<h2>Confirm Your Boat Booking</h2>
-<button id="pay-button">Pay Now</button>
+
+<!-- Tourism Statement -->
+<div class="tourism-header">
+    <h1>🌊 Pay & Explore Beautiful Honnavara! 🛶</h1>
+    <p>Book your boat now and enjoy the serene beaches and scenic views.</p>
+</div>
+
+<div class="payment-card">
+    <h2>Confirm Your Boat Booking</h2>
+    <div class="details">
+        <p id="boat-info">Loading details...</p>
+        <p id="booking-date"></p>
+        <p id="seat-count"></p>
+        <p class="total" id="total-amount"></p>
+    </div>
+    <button id="pay-button">Pay Now</button>
+</div>
 
 <script>
     const boatType = localStorage.getItem("boatType") || "public";
@@ -19,42 +138,31 @@
 
     const amount = boatType === "public" ? 500 * seatCount : 1500;
 
+    // Show booking details
+    document.getElementById("boat-info").textContent = `Boat Type: ${boatType.charAt(0).toUpperCase() + boatType.slice(1)}`;
+    document.getElementById("booking-date").textContent = `Booking Date: ${bookingDate}`;
+    document.getElementById("seat-count").textContent = boatType === "public" ? `Seats: ${seatCount}` : '';
+    document.getElementById("total-amount").textContent = `Total Amount: ₹${amount}`;
+
     document.getElementById('pay-button').onclick = function () {
         fetch(`http://localhost:8081/api/payments/create-order?boatId=${boatId}&bookingDate=${bookingDate}&slotId=${slotId}&seats=${seatCount}&isPrivate=${boatType === "private"}&amount=${amount}&currency=INR`, {
             method: 'POST'
         })
         .then(res => res.json())
         .then(order => {
-            if (order.error) {
-                alert(order.error);
-                return;
-            }
+            if (order.error) { alert(order.error); return; }
 
             const options = {
                 key: "rzp_test_QLskUZfgxNvznF",
                 amount: order.amount,
                 currency: order.currency,
-                name: "SagaraMitra",
+                name: "SagaraMitra - Honnavara Tours",
                 description: "Boat Booking Payment",
                 order_id: order.id,
-
                 handler: function (response) {
                     const bookingData = boatType === "public"
-                        ? {
-                            userId: userId,
-                            boatId: boatId,
-                            slotId: slotId,
-                            date: bookingDate,
-                            seatCount: seatCount
-                          }
-                        : {
-                            userId: userId,
-                            boatId: boatId,
-                            slotId: slotId,
-                            date: bookingDate
-                          };
-
-                    console.log("📤 Sending bookingData:", bookingData);
+                        ? { userId, boatId, slotId, date: bookingDate, seatCount }
+                        : { userId, boatId, slotId, date: bookingDate };
 
                     const url = `http://localhost:8081/api/bookings/${boatType}/confirm`;
 
@@ -65,7 +173,6 @@
                     })
                     .then(r => r.json())
                     .then(res => {
-                        console.log("📥 Booking API Response:", res);
                         if (res.status === "success") {
                             window.location.href = "booking-success.html";
                         } else {
@@ -73,26 +180,25 @@
                         }
                     })
                     .catch(err => {
-                        console.error("❌ Booking API Error:", err);
+                        console.error(err);
                         window.location.href = "payment-failed.html";
                     });
                 }
             };
 
             const rzp = new Razorpay(options);
-
             rzp.on("payment.failed", function (resp) {
-                console.error("❌ Payment failed:", resp.error);
                 window.location.href = "payment-failed.html";
             });
 
             rzp.open();
         })
         .catch(err => {
-            console.error("❌ Payment API error:", err);
+            console.error(err);
             window.location.href = "payment-failed.html";
         });
     };
 </script>
+
 </body>
 </html>

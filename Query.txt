@@ -1,0 +1,28 @@
+INSERT INTO public_boats (boat_id, boat_name, capacity, pickup_drop_location, owner_id)
+VALUES
+(1, 'Eco Wave', 6, 'Eco Beach', 1),
+(2, 'Sunset Sail', 6, 'Eco Beach', 2),
+(3, 'Sharavathi Glimpse', 7, 'Sharavathi', 3),
+(4, 'Sharavathi Explorer', 9, 'Sharavathi', 4),
+(5, 'Bada Bliss', 4, 'Aghanashini River', 1),
+(6, 'Apsarakonda', 6, 'Sharavathi', 2);
+
+
+INSERT INTO privat_boats (boat_id, boat_name, pickup_drop_location, owner_id)
+VALUES
+(1, 'Silent Tide', 'Sharavathi', 3),
+(2, 'Backwater Bliss', 'Sharavathi', 4),
+(3, 'Waves of Echo', 'Eco Beach', 1),
+(4, 'Silent Shores', 'Eco Beach', 2);
+
+
+INSERT INTO public_boat_slots (slot_id, slot_time) VALUES
+(1, 'Morning (6 AM - 9 AM)'),
+(2, 'Midday (9 AM - 12 PM)'),
+(3, 'Afternoon (12 PM - 3 PM)'),
+(4, 'Evening (3 PM - 6 PM)');
+
+INSERT INTO private_boat_slots (slot_id, slot_time) VALUES
+(1, 'Morning (6 AM - 10 AM)'),
+(2, 'Afternoon (10 AM - 2 PM)'),
+(3, 'Evening (2 PM - 6 PM)');

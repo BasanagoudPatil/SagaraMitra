@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
-
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -18,7 +17,6 @@ public class UserController {
 
     @PostMapping("/register")
     public String registerUser(@RequestBody User user) {
-
         return userService.registerUser(user);
     }
 
@@ -29,6 +27,7 @@ public class UserController {
         response.put("exists", exists);
         return response;
     }
+
     @PostMapping("/login")
     public Map<String, String> loginUser(@RequestBody Map<String, String> loginRequest) {
         String userPhone = loginRequest.get("userPhone");
@@ -39,6 +38,7 @@ public class UserController {
         response.put("status", status);
         return response;
     }
+
     @PostMapping("/logout")
     public String logoutUser() {
         userService.logoutUser();
@@ -50,4 +50,42 @@ public class UserController {
         return userService.getCurrentUser();
     }
 
+    // ✅ Forgot password: generate OTP
+    @PostMapping("/forgot-password")
+    public Map<String, String> forgotPassword(@RequestBody Map<String, String> request) {
+        String userName = request.get("userName");
+        String userPhone = request.get("userPhone");
+
+        Map<String, String> response = new HashMap<>();
+        String otp = userService.generateOtp(userName, userPhone);
+
+        if (otp != null) {
+            response.put("status", "success");
+            response.put("otp", otp); // In real app, send via SMS/email
+        } else {
+            response.put("status", "error");
+            response.put("message", "No matching user found with provided Name and Phone.");
+        }
+        return response;
+    }
+
+    // ✅ Reset password using OTP
+    @PostMapping("/reset-password")
+    public Map<String, String> resetPassword(@RequestBody Map<String, String> request) {
+        String userPhone = request.get("userPhone");
+        String otp = request.get("otp");
+        String newPassword = request.get("newPassword");
+
+        Map<String, String> response = new HashMap<>();
+        boolean success = userService.resetPassword(userPhone, otp, newPassword);
+
+        if (success) {
+            response.put("status", "success");
+            response.put("message", "Password reset successfully!");
+        } else {
+            response.put("status", "error");
+            response.put("message", "Invalid OTP. Please try again.");
+        }
+        return response;
+    }
 }
